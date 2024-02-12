@@ -1,4 +1,12 @@
+--extra-index-url https://download.pytorch.org/whl/cu118
+torch
+torchvision
 flask
 APScheduler
 SQLAlchemy
 Flask-SQLAlchemy
+openai
+diffusers
+transformers
+accelerate
+invisible-watermark>=0.2.0

@@ -4,6 +4,8 @@ from apscheduler.schedulers.background import BackgroundScheduler
 import os
 import datetime
 
+from backend.generate_article import generate_article, parse_article
+from backend.generate_image import generate_image
 from backend.template import TEMPLATE
 
 app = Flask(__name__)
@@ -23,16 +25,19 @@ class Article(db.Model):
     created_at = db.Column(db.DateTime, default=datetime.datetime.utcnow)
 
 def generate_dummy_content(category):
-    article = Article(
-        category=category,
-        title='Lorem Ipsum',
-        subtitle='Dolor sit amet',
-        text='Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.',
-        image='test.png',  # Placeholder image. Make sure to replace with the correct path or URL.
-    )
-    with app.app_context():
-        db.session.add(article)
-        db.session.commit()
+    article_content = generate_article(category=category)
+    parsed_article = parse_article(article_content)
+    if parsed_article is not None:
+        article = Article(
+            category=category,
+            title=parsed_article["headline"],
+            subtitle=parsed_article["category"],
+            text=parsed_article["article"],
+            image=generate_image(parsed_article["prompt"]),  # Placeholder image. Make sure to replace with the correct path or URL.
+        )
+        with app.app_context():
+            db.session.add(article)
+            db.session.commit()
 
 
 # Create the database and tables
@@ -40,7 +45,7 @@ with app.app_context():
     db.create_all()
     if Article.query.count() == 0:  # Check if the database is empty
         for category in ['main', 'sub', 'sport', 'weather', 'humour']:
-            for _ in range(2):  # Create 2 articles for each category
+            for _ in range(1):  # Create 1 article(s) for each category
                 generate_dummy_content(category)
 
 def generate_content():
