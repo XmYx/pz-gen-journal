@@ -1,1 +1,4 @@
 flask
+APScheduler
+SQLAlchemy
+Flask-SQLAlchemy
